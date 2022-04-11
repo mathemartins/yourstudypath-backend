@@ -1,0 +1,30 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeU1EUXhNVEUxTVRJek1sb1hEVE15TURRd09ERTFNVEl6TWxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTHRlCmtyenpqQld4ODlibEVEZFVYcTk2ckhQZEdlR2JvT3RSN2ZtN3Q0RkVjUzdxb3EvSEt3YnVPeFpkT2NiWjR3T2QKVVBBUkN0SlhvR2hWZW9NWU5hWVluZGl5VEZWei9wVG92RTFZaDlBa09KQmptU1dJd0J3L3pGNFJyaENNZnJqKwpuUkxicGgvajVuTURVTXh3V3JxYWQ4cXBnZEJQK1NhSGh1aFlIbkN5ZE5DcDh6UnlXVjlocmx4OTkwWHhYdGFnClF6YUpYTGNBU3hKTlQ0clFRR1VnaFZzcG1DcW5Od084eW9zMk1qeWJQNlVsU1dqdWo4S3ZKUER0cXJWYUxXVVUKNGpiWUNnUUJtdFFPdURUb2svY1dtRmZ3dGNSSlkvSXF3aW9HSEplalF3cFh0dStNQ2NZcm5rWHN5WDN0SmcrZQphaTlFT2crQnFPUUoyQnZPT0RFQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZFQzZMb3YzTEFxT1VmTUJNVDA4c3kveVhUd2JNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFBcnBRdnJvL09hSGNqSCtSVm1Za0lBdGRhRDc0SjVsczJ6aFB5Q1k0OTdWRGc3a0QzVgpwZGEzd3dIVlhqT0Q2RFQ1QWpwQnducXRPUzM3YVZDU3lyQkZSOHdsSHJ1Y3FNcHFpS3FjdnRlcVN1eUZIY0g0Cm5pM2pYOHhYWHRkaTR6MjZSZU1HQkhHNy9JQ1NnSDJncjVVYUl4bGNsWk5ZNW9UR1NnUjIyT1REbm1UZUZnMlIKamd6QkVRUnFpT2JRNDNDSmtYcmh2YWlpclBTdnowcG5XcEI5TEZ6VjFTWUtvRGJQa2dKcjNOOHIycWRlclR5OApEQnE5OEF3RFhBdjdTalZWOE5qWFJxUDc1Tk16WjJZUVh1QXlQZ1lkOU5KazJUOFZ4NC80QXYvTXEvNFFXQmkwCmhYTStQZ1RqeVhGcUNGUXlGR2Z2bHpUUm52bmkzYXF1M0E4agotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://F732DD70E40F80D8EDC6CA6BDC9F5F96.gr7.us-west-2.eks.amazonaws.com
+  name: eks-vpc-cluster.us-west-2.eksctl.io
+contexts:
+- context:
+    cluster: eks-vpc-cluster.us-west-2.eksctl.io
+    user: iam-root-account@eks-vpc-cluster.us-west-2.eksctl.io
+  name: iam-root-account@eks-vpc-cluster.us-west-2.eksctl.io
+current-context: iam-root-account@eks-vpc-cluster.us-west-2.eksctl.io
+kind: Config
+preferences: {}
+users:
+- name: iam-root-account@eks-vpc-cluster.us-west-2.eksctl.io
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - token
+      - -i
+      - eks-vpc-cluster
+      command: aws-iam-authenticator
+      env:
+      - name: AWS_STS_REGIONAL_ENDPOINTS
+        value: regional
+      - name: AWS_DEFAULT_REGION
+        value: us-west-2
+      provideClusterInfo: false

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ysp-k8s-deployment
+  labels:
+    app: ysp-k8s-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ysp-k8s-deployment
+  template:
+    metadata:
+      labels:
+        app: ysp-k8s-deployment
+    spec:
+      containers:
+      - name: ysp
+        image: 841683783610.dkr.ecr.us-west-2.amazonaws.com/ysp:latest
+        imagePullPolicy: Always
+#        envFrom:
+#          - secretRef:
+#              name: ysp-k8s-web-prod-env
+#        env:
+#          - name: PORT
+#            value: "8002"
+        ports:
+        - containerPort: 8002
+#      imagePullSecrets:
+#        - name: ysp
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ysp-k8s-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8002
+  selector:
+    app: ysp-k8s-deployment
