@@ -1,5 +1,5 @@
 """
-ASGI config for yourstudypath project.
+ASGI config.yaml for yourstudypath project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 

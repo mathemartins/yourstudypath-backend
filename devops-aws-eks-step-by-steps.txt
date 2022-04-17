@@ -1,0 +1,61 @@
+To deploy django application aws eks - elastic kubernetes service
+1. create the ecr from aws console
+2. Connect console to ecr, authenticate, build image and deploy to ecr
+    a. Authenticate
+    ``aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 841683783610.dkr.ecr.us-west-2.amazonaws.com``
+    b. Build Image
+    ``docker build -t yourstudypath .``
+    c. Tag Image
+    ``docker tag yourstudypath:latest 841683783610.dkr.ecr.us-west-2.amazonaws.com/yourstudypath:latest``
+    d. Push Image to Container
+    ``docker push 841683783610.dkr.ecr.us-west-2.amazonaws.com/yourstudypath:latest``
+3. Provision the kubernetes cluster using the eksctl tool
+    The EKSCTL tool will perform the following for us automatically:
+    Create baseline network infrastructure: VPC (virtual private cloud) with subnets, route table, route association, internet gateway, security groups, etc.
+    Create EKS Master Cluster IAM role and IAM Policy to allow EKS service to retrieve data from other AWS services
+    Create EKS Master Cluster Security Group to allow cluster communication with worker nodes and worker nodes to communicate with Cluster API server.
+    Create the EKS Master node (control plane) itself
+    Create Security Group to allow nodes (EC2 instances) to communicate to Kubernetes API.
+    Create worker node IAM role and Instance Profile
+    Create worker node Security Group to allow worker nodes to communicate with each other, and allow kubelets and pods to receive communication from cluster control plane
+    Create Security Group to allow pods to communicate to with cluster API server.
+    Create worker node ASG (auto scale group) with worker nodes (EC2 instances) that will install Kubernetes worker node components (such as user-data cloud-init script)
+    Create required Kubernetes configuration to allow worker nodes (EC2 instances) to join the cluster through IAM role authentication (authorization config map in kube-system namespace)
+    Create Kubernetes configuration to allow users (IAM users) to manage the cluster (authorization config map in kube-system namespace)
+    ``
+    eksctl create cluster \
+  --region us-west-2 \
+  --node-type t3.medium \
+  --nodes 3 \
+  --nodes-min 1 \
+  --nodes-max 4 \
+  --name yourstudypath --kubeconfig=/Users/mac/PycharmProjects/yourstudypath/k8s/apps/config.yaml
+  ``
+  OR
+  If you create an eks-cluster-create.yaml file you can run this command
+  ``eksctl create cluster \
+  -f $HOME/<Path To eks-cluster-create.yaml file> \
+  --kubeconfig=$HOME/<Path To Storage For kubeconfig-file.yaml>
+  ``
+
+4. Download KUBECONFIG file
+    ``aws eks update-kubeconfig --region us-west-2 --name yourstudypath``
+5. Export the kubeconfig file setup in your terminal global
+    ``export KUBECONFIG=/Users/mac/PycharmProjects/yourstudypath/k8s/apps/config.yaml``
+    test it
+    ``kubectl get svc``
+6. Create Deployment file containing both, deployment pods and load balancer service
+    ``deploy to server using
+      kubectl apply -f <Path To Deployment file.yaml>
+      kubectl apply -f /Users/mac/PycharmProjects/yourstudypath/k8s/apps/ysp-k8s-deployment.yaml
+
+      kubectl get pods --watch
+
+      :::Delete deployment:::
+      kubectl delete -f /Users/mac/PycharmProjects/yourstudypath/k8s/apps/ysp-k8s-deployment.yaml
+
+      :::Navigate Inside A Pod:::
+      kubectl exec -it ysp-k8s-deployment-5646659d9c-kdfpw -- /bin/bash
+
+      :::Troubleshooting a pod:::
+      kubectl logs -f <pod-name>

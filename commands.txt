@@ -81,6 +81,7 @@ ecs-cli compose --project-name socialiga  --file docker-compose.yml \
 # Kubernetes k8s
 
 aws eks update-kubeconfig --region us-west-2 --name yourstudypath
+aws eks update-kubeconfig --region us-west-2 --name eksctl-yourstudypath-cluster
 
 # Immediately after downloading the k8s-config file, run this command in your terminal
 export KUBECONFIG=~/desktop/syarpa-kubeconfig.yaml
@@ -139,36 +140,19 @@ host = private-db-redis-redis-do-user-10904361-0.b.db.ondigitalocean.com
 port = 25061
 
 Tasks
-1. Switch system config to ASGI and integrate system with coingecko for market prices as websocket - Done
-2. Configure system with channels - Done
-3. Finish up transfer endpoint for off-chain and on-chain transaction - Done
-4. Connect to Bsc and integrate system - Done
-5. Connect to Solana and integrate
-6. Connect to Tron and integrate
-7. Connect to Tatum and integrate Bitcoin - Task Current
-
-Less pressing
-8. Build the staking / saving system
-9. Build the P2P system
-
-10. Connect to Polygon and integrate
-11. Connect to Avalanche and integrate
-
-Avalanche Network Details
-
-Network Name - Avalanche Network
-New RPC URL - https://api.avax.network/ext/bc/C/rpc
-Chain ID - 43114 or 0xa86a
-Currency Symbol - AVAX
-Block Explorer URL - https://snowtrace.io/
-
-Network Name - Polygon
-New RPC URL - Choose any of the following:
-https://polygon-rpc.com
-https://rpc-mainnet.maticvigil.com
-https://rpc-mainnet.matic.network
-https://rpc-mainnet.matic.quiknode.pro
-Chain ID - 137
-Currency Symbol - MATIC
-Block Explorer URL - https://polygonscan.com/
+Give Kesh this data for updating the profile fields
+"""
+    first_name
+    last_name
+    nin
+    gender
+    photo
+    phone
+    date_of_birth
+    street
+    locale
+    state
+    zip_code
+    country
+"""
 

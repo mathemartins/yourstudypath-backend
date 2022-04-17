@@ -5,7 +5,7 @@ metadata:
   labels:
     app: ysp-k8s-deployment
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: ysp-k8s-deployment
@@ -15,19 +15,10 @@ spec:
         app: ysp-k8s-deployment
     spec:
       containers:
-      - name: ysp
-        image: 841683783610.dkr.ecr.us-west-2.amazonaws.com/ysp:latest
-        imagePullPolicy: Always
-#        envFrom:
-#          - secretRef:
-#              name: ysp-k8s-web-prod-env
-#        env:
-#          - name: PORT
-#            value: "8002"
+      - name: yourstudypath
+        image: 841683783610.dkr.ecr.us-west-2.amazonaws.com/yourstudypath:latest
         ports:
         - containerPort: 8002
-#      imagePullSecrets:
-#        - name: ysp
 
 
 ---
