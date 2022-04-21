@@ -131,7 +131,7 @@ class Profile(models.Model):
         verbose_name_plural = "Profiles"
 
     def __str__(self):
-        return self.nin
+        return self.user.username
 
     def get_absolute_url(self):
         return reverse('account:profile-detail', kwargs={'slug': self.slug})
@@ -172,7 +172,6 @@ def post_save_user_create_reciever(sender, instance, created, *args, **kwargs):
         Profile.objects.create(
             user=instance,
             slug=unique_slug_generator_by_email(instance),
-            uuid=random_string_generator(12),
         )
 
 

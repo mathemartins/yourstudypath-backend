@@ -1,12 +1,18 @@
 from django.urls import re_path, path
 
-from rest_framework_jwt.views import refresh_jwt_token, obtain_jwt_token  # accounts app
-
-from accounts.api.views import AuthAPIView, RegisterAPIView
+from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
+from accounts.api.views import RegisterAPIView, ProfileRUDAPIView
 
 urlpatterns = [
-    re_path(r'^$', AuthAPIView.as_view(), name='login'),
-    re_path(r'^register/$', RegisterAPIView.as_view(), name='register'),
-    re_path(r'^jwt/$', obtain_jwt_token),
-    re_path(r'^jwt/refresh/$', refresh_jwt_token),
+    path('auth/', obtain_auth_token),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('register/', RegisterAPIView.as_view(), name="register"),
+    path('profile/update/<slug>/', ProfileRUDAPIView.as_view(), name='profile_update'),
 ]

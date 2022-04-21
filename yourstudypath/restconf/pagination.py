@@ -1,7 +1,7 @@
 from rest_framework import pagination
 
 
-class SyarpaAPIPagination(pagination.LimitOffsetPagination):  # PageNumberPagination):
+class YourStudyPathAPIPagination(pagination.LimitOffsetPagination):  # PageNumberPagination):
     # page_size   =  20
     default_limit = 10
     max_limit = 20

@@ -1,37 +1,15 @@
-from django.contrib.auth import authenticate, get_user_model
-from django.db.models import Q
-from rest_framework import generics, permissions, status
-from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
+from django.contrib.auth import get_user_model
+from rest_framework import generics
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
-from rest_framework_jwt.settings import api_settings
+from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from yourstudypath.restconf.permissions import AnonPermissionOnly
-from .serializers import UserRegisterSerializer, UserLoginSerializer
-
-jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
+from accounts.models import Profile
+from yourstudypath.restconf.permissions import AnonPermissionOnly, IsOwnerOrReadOnly
+from accounts.api.serializers import UserRegisterSerializer, ProfileSerializer
 
 User = get_user_model()
-
-
-class AuthAPIView(APIView):
-    permission_classes = (AllowAny,)
-    serializer_class = UserLoginSerializer
-
-    def post(self, request):
-        if request.user.is_authenticated:
-            return Response({'detail': 'You are already authenticated'}, status=400)
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        response = jwt_response_payload_handler(
-            token=serializer.data['token'],
-            user=serializer.data['username'],
-            request=request
-        )
-        return Response(response, status=status.HTTP_200_OK)
 
 
 class RegisterAPIView(generics.CreateAPIView):
@@ -41,3 +19,26 @@ class RegisterAPIView(generics.CreateAPIView):
 
     def get_serializer_context(self, *args, **kwargs):
         return {"request": self.request}
+    
+
+# Because profile was created on user registration RUD(Read Update Delete APIView)
+class ProfileRUDAPIView(IsOwnerOrReadOnly, generics.RetrieveUpdateDestroyAPIView):
+    queryset = Profile.objects.all()
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+    serializer_class = ProfileSerializer
+    lookup_field = 'slug'
+
+    def get_serializer_context(self, *args, **kwargs):
+        return {"request": self.request}
+
+    def perform_update(self, serializer):
+        owner: Profile = Profile.objects.get(slug=self.kwargs.get('slug'))
+        if self.request.user.username is not owner.user.username:
+            return Response({"detail": "Must be owner"}, status=status.HTTP_401_UNAUTHORIZED)
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        owner: Profile = Profile.objects.get(slug=self.kwargs.get('slug'))
+        if self.request.user.username is not owner.user.username:
+            return Response({"detail": "Must be owner"}, status=status.HTTP_401_UNAUTHORIZED)
+        super().perform_destroy(instance)

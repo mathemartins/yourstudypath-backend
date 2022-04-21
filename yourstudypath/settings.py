@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+import datetime
 import os
 from pathlib import Path
 
@@ -27,7 +28,6 @@ BASE_URL = 'https://api.yourstudypath.com'
 if ENV_ALLOWED_HOST:
     ALLOWED_HOSTS = [ENV_ALLOWED_HOST]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,6 +43,8 @@ INSTALLED_APPS = [
 INSTALLED_APPS += [
     'rest_framework',
     'rest_framework_jwt',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
     'rest_framework_swagger',
     'storages',
     'channels',
@@ -56,6 +58,7 @@ INSTALLED_APPS += [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -64,6 +67,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'yourstudypath.urls'
+CORS_URLS_REGEX = r"^/api/.*"
+CORS_ALLOWED_ORIGINS = []
+
+if DEBUG:
+    CORS_ALLOWED_ORIGINS += [
+        'http://localhost:8000',
+        'https://localhost:8000',
+    ]
 
 TEMPLATES = [
     {
@@ -127,7 +138,6 @@ if DB_IS_AVAIL:
 
 print(DATABASES)
 
-
 CELERY_BROKER_URL = "rediss://default:KCAnYINTOypslB2a@private-db-redis-redis-do-user-10904361-0.b.db.ondigitalocean" \
                     ".com:25061 "
 BROKER_URL = "rediss://default:KCAnYINTOypslB2a@private-db-redis-redis-do-user-10904361-0.b.db.ondigitalocean.com:25061"
@@ -148,6 +158,7 @@ CHANNEL_LAYERS = {
     },
 }
 
+AUTHENTICATION_BACKENDS = ['accounts.authentication.EmailBackend']
 
 # Password validation
 
@@ -166,7 +177,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 
 LANGUAGE_CODE = 'en-us'
@@ -179,10 +189,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = 'static/'
+STATIC_URL = 'staticfiles/'
 
 # Default primary key field type
 
@@ -193,5 +202,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles-cdn"
 STATICFILES_DIRS = [
     BASE_DIR / "staticfiles"
 ]
-from yourstudypath.cdn.conf import *  # noqa
+# from yourstudypath.cdn.conf import *  # noqa
 from yourstudypath.restconf import *  # noqa
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ["Bearer"],
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(days=30),  # minutes=5
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(days=30),  # days=1
+}
