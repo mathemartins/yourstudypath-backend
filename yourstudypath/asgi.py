@@ -14,7 +14,6 @@ import dotenv
 
 import django
 
-django.setup()
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
@@ -27,6 +26,8 @@ ENV_FILE_PATH = BASE_DIR / ".env"
 dotenv.read_dotenv(str(ENV_FILE_PATH))
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'yourstudypath.settings')
+
+django.setup()
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
