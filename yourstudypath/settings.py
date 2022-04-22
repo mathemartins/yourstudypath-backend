@@ -74,6 +74,7 @@ if DEBUG:
     CORS_ALLOWED_ORIGINS += [
         'http://localhost:8000',
         'https://localhost:8000',
+        'https://ysp-staging.herokuapp.com',
     ]
 
 TEMPLATES = [
@@ -103,11 +104,11 @@ DATABASES = {
     }
 }
 
-DB_USERNAME = os.environ.get("POSTGRES_USER")
-DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-DB_DATABASE = os.environ.get("POSTGRES_DB")
-DB_HOST = os.environ.get("POSTGRES_HOST")
-DB_PORT = os.environ.get("POSTGRES_PORT")
+DB_USERNAME = 'axrnboaffvbjmg'  # os.environ.get("POSTGRES_USER")
+DB_PASSWORD = 'a8e223c11ff013c487c44ce1705f6c577a896a6023276492f45bc52cbdaa19d7'  # os.environ.get("POSTGRES_PASSWORD")
+DB_DATABASE = 'd2hf6uiihfbr8b'  # os.environ.get("POSTGRES_DB")
+DB_HOST = 'ec2-52-5-110-35.compute-1.amazonaws.com'  # os.environ.get("POSTGRES_HOST")
+DB_PORT = '5432'
 
 DB_IS_AVAIL = all([
     DB_USERNAME,
