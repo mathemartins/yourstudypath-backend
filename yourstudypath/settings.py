@@ -192,17 +192,18 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = 'staticfiles/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static_root'
 
 # Default primary key field type
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-STATIC_ROOT = BASE_DIR / "staticfiles-cdn"
-
-STATICFILES_DIRS = [
-    BASE_DIR / "staticfiles"
-]
+# STATIC_ROOT = BASE_DIR / "staticfiles"
+#
+# STATICFILES_DIRS = [
+#     BASE_DIR / "staticfiles"
+# ]
 # from yourstudypath.cdn.conf import *  # noqa
 from yourstudypath.restconf import *  # noqa
 
