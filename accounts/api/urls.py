@@ -1,4 +1,4 @@
-from django.urls import re_path, path
+from django.urls import path
 
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework_simplejwt.views import (

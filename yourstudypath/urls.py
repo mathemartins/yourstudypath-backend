@@ -9,6 +9,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include(('accounts.api.urls', 'api-auth'), namespace='api-auth')),
     path('api/exam/', include(('core.api.urls', 'api-core'), namespace='api-core')),
+    path('api/analytics/', include(('analytics.api.urls', 'api-analytics'), namespace='api-analytics')),
+    path('api/courses/', include(('courses.api.urls', 'api-courses'), namespace='api-courses')),
 ]
 
 # authentication urls

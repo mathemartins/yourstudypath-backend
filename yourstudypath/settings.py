@@ -48,6 +48,8 @@ INSTALLED_APPS += [
     'rest_framework_swagger',
     'storages',
     'channels',
+    'taggit',
+    'taggit_serializer',
 ]
 
 # Custom apps
@@ -61,6 +63,10 @@ INSTALLED_APPS += [
     'videos',
 ]
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+FORCE_SESSION_TO_ONE = False
+FORCE_INACTIVE_USER_ENDSESSION = False
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -73,15 +79,26 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'yourstudypath.urls'
-CORS_URLS_REGEX = r"^/api/.*"
-CORS_ALLOWED_ORIGINS = []
+# CORS_URLS_REGEX = r"^/api/.*"
+# CORS_ALLOWED_ORIGINS = []
 
-if DEBUG:
-    CORS_ALLOWED_ORIGINS += [
-        'http://localhost:8000',
-        'https://localhost:8000',
-        'https://ysp-staging.herokuapp.com',
-    ]
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+HOST_SCHEME = "https://"
+SECURE_PROXY_SSL_HEADER = None
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SECURE_HSTS_SECONDS = None
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_FRAME_DENY = False
+
+# if DEBUG:
+#     CORS_ALLOWED_ORIGINS += [
+#         'http://localhost:8000',
+#         'https://localhost:8000',
+#         'https://ysp-staging.herokuapp.com',
+#     ]
 
 TEMPLATES = [
     {
