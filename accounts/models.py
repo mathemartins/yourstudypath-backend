@@ -15,6 +15,8 @@ from django.utils import timezone
 from django.utils.datetime_safe import date
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
+
+from core.models import CourseOfStudy, University
 from yourstudypath.utils import unique_key_generator, unique_slug_generator_by_email, random_string_generator
 
 
@@ -204,3 +206,20 @@ class Address(models.Model):
     def get_address(self):
         return "{address}, {lga} {state} {country}".format(address=self.street, lga=self.locale, state=self.state,
                                                            country=self.country)
+
+
+class PreparingExam(models.Model):
+    exam_name = models.CharField(max_length=255, blank=True, null=True)
+    exam_image = models.URLField(max_length=300, blank=True, null=True)
+    exam_code = models.CharField(max_length=10, blank=True, null=True)
+    students = models.ManyToManyField(User, blank=True)
+    course_of_study = models.ForeignKey(CourseOfStudy, on_delete=models.CASCADE, blank=True, null=True)
+    university = models.ForeignKey(University, on_delete=models.CASCADE, blank=True, null=True)
+
+    class Meta:
+        db_table = "preparing_exam"
+        verbose_name = "Preparing Exam"
+        verbose_name_plural = "Preparing Exam"
+
+    def __str__(self):
+        return self.exam_name

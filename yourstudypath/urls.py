@@ -8,6 +8,7 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include(('accounts.api.urls', 'api-auth'), namespace='api-auth')),
+    path('api/exam/', include(('core.api.urls', 'api-core'), namespace='api-core')),
 ]
 
 # authentication urls

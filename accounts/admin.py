@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from accounts.models import EmailActivation, Profile, Address
+from accounts.models import EmailActivation, Profile, Address, PreparingExam
 
 
 class EmailActivationAdmin(admin.ModelAdmin):
@@ -37,3 +37,12 @@ class AddressAdmin(admin.ModelAdmin):
     list_display_links = ('user', 'street')
     list_editable = ('state', 'country')
     list_filter = ('state', 'country', 'zip_code')
+
+
+@admin.register(PreparingExam)
+class PreparingExam(admin.ModelAdmin):
+    list_display = ('exam_name', 'exam_code', 'course_of_study', 'university')
+    list_editable = ('exam_name', 'exam_code',)
+    list_display_links = ('course_of_study',)
+    list_filter = ('exam_code', 'university', 'course_of_study',)
+    search_fields = ('exam_name', 'university', 'course_of_study',)

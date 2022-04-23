@@ -53,6 +53,12 @@ INSTALLED_APPS += [
 # Custom apps
 INSTALLED_APPS += [
     'accounts',
+    'core',
+    'analytics',
+    'categories',
+    'courses',
+    'search',
+    'videos',
 ]
 
 MIDDLEWARE = [
