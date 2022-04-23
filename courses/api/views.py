@@ -15,7 +15,7 @@ from videos.mixins import MemberRequiredMixin
 from yourstudypath.mixins import StaffEditorPermissionMixin
 
 
-class CourseListCreateAPIView(StaffEditorPermissionMixin, generics.ListCreateAPIView):
+class CourseListCreateAPIView(generics.ListCreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     authentication_classes = [SessionAuthentication, JWTAuthentication]
@@ -30,8 +30,7 @@ class CourseListCreateAPIView(StaffEditorPermissionMixin, generics.ListCreateAPI
         user = request.user
         if not user.is_authenticated:
             return Course.objects.none()
-        return qs.filter(user=request.user)
-
+        return qs  # .filter(user=request.user)
 
 # class LectureDetailView(View):
 #     def get(self, request, cslug=None, lslug=None, *args, **kwargs):
