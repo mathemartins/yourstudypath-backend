@@ -1,21 +1,26 @@
 import random
-from rest_framework import generics
+from itertools import chain
+
+from django.views.generic import RedirectView
+from rest_framework import generics, status
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from analytics.models import CourseViewEvent
 from courses.api.serializers import CourseSerializer
-from courses.models import Course
+from courses.models import Course, Lecture
 
 from videos.mixins import MemberRequiredMixin
 from yourstudypath.mixins import StaffEditorPermissionMixin
 
 
-class CourseListCreateAPIView(generics.ListCreateAPIView):
+class CourseCreateAPIView(StaffEditorPermissionMixin, generics.CreateAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     authentication_classes = [SessionAuthentication, JWTAuthentication]
@@ -24,122 +29,125 @@ class CourseListCreateAPIView(generics.ListCreateAPIView):
         serializer.partial = True
         serializer.save(user=self.request.user)
 
+
+class CourseListAPIView(generics.ListAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+
     def get_queryset(self, *args, **kwargs):
         qs = super().get_queryset(*args, **kwargs)
-        request = self.request
-        user = request.user
+        user = self.request.user
         if not user.is_authenticated:
             return Course.objects.none()
-        return qs  # .filter(user=request.user)
+        mod_qs = list(chain(qs.owned(user)))  # can accept multiple qs and chain them together as one
+        return mod_qs  # .filter(user=request.user)
 
-# class LectureDetailView(View):
-#     def get(self, request, cslug=None, lslug=None, *args, **kwargs):
-#         obj = None
-#         qs = Course.objects.filter(slug=cslug).lectures().owned(request.user)
-#         if not qs.exists():
-#             raise Http404
-#         course_ = qs.first()
-#         if request.user.is_authenticated():
-#             view_event, created = CourseViewEvent.objects.get_or_create(user=request.user, course=course_)
-#             if view_event:
-#                 view_event.views += 1
-#                 view_event.save()
-#
-#         lectures_qs = course_.lecture_set.filter(slug=lslug)
-#         if not lectures_qs.exists():
-#             raise Http404
-#
-#         obj = lectures_qs.first()
-#         context = {
-#             "object": obj,
-#             "course": course_,
-#         }
-#
-#         if not course_.is_owner and not obj.free:  # and not user.is_member:
-#             return render(request, "courses/must_purchase.html", {"object": course_})
-#
-#         return render(request, "courses/lecture_detail.html", context)
-#
-#
-# class CourseDetailView(DetailView):
-#     # queryset = Course.objects.all()
-#     def get_object(self):
-#         slug = self.kwargs.get("slug")
-#         qs = Course.objects.filter(slug=slug).lectures().owned(self.request.user)
-#         if qs.exists():
-#             obj = qs.first()
-#             if self.request.user.is_authenticated():
-#                 view_event, created = CourseViewEvent.objects.get_or_create(user=self.request.user, course=obj)
-#                 if view_event:
-#                     view_event.views += 1
-#                     view_event.save()
-#             return obj
-#         raise Http404
-#
-#
-# class CoursePurchaseView(LoginRequiredMixin, RedirectView):
-#     permanent = False
-#
-#     def get_redirect_url(self, slug=None):
-#         qs = Course.objects.filter(slug=slug).owned(self.request.user)
-#         if qs.exists():
-#             user = self.request.user
-#             if user.is_authenticated():
-#                 my_courses = user.mycourses
-#                 # run transaction
-#                 # if transaction successful:
-#                 my_courses.courses.add(qs.first())
-#                 return qs.first().get_absolute_url()
-#             return qs.first().get_absolute_url()
-#         return "/courses/"
-#
-#
-# class CourseListView(ListView):
-#     paginate_by = 12
-#
-#     def get_context_data(self, *args, **kwargs):
-#         context = super(CourseListView, self).get_context_data(*args, **kwargs)
-#         print(dir(context.get('page_obj')))
-#         return context
-#
-#     def get_queryset(self):
-#         request = self.request
-#         qs = Course.objects.all()
-#         query = request.GET.get('q')
-#         user = self.request.user
-#         if query:
-#             qs = qs.filter(title__icontains=query)
-#         if user.is_authenticated():
-#             qs = qs.owned(user)
-#         return qs
-#
-#
-# class CourseUpdateView(StaffMemberRequiredMixin, UpdateView):
-#     queryset = Course.objects.all()
-#     form_class = CourseForm
-#
-#     def form_valid(self, form):
-#         obj = form.save(commit=False)
-#         if not self.request.user.is_staff:
-#             obj.user = self.request.user
-#         obj.save()
-#         return super(CourseUpdateView, self).form_valid(form)
-#
-#     def get_object(self):
-#         slug = self.kwargs.get("slug")
-#         obj = Course.objects.filter(slug=slug)
-#         if obj.exists():
-#             return obj.first()
-#         raise Http404
-#
-#
-# class CourseDeleteView(StaffMemberRequiredMixin, DeleteView):
-#     queryset = Course.objects.all()
-#     success_url = '/videos/'
-#
-#     def get_object(self):
-#         slug = self.kwargs.get("slug")
-#         obj = Course.objects.filter(slug=slug)
-#         if obj.exists():
-#             return obj.first()
-#         raise Http404
+
+class CourseDetailAPIView(generics.RetrieveAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+    lookup_field = 'slug'
+
+    def get_serializer_context(self, *args, **kwargs):
+        return {"request": self.request}
+
+    def get_object(self, *args, **kwargs):
+        slug = self.kwargs.get("slug")
+        qs = Course.objects.filter(slug=slug).lectures().owned(self.request.user)  # returns lecture lists
+        if qs.exists():
+            obj = qs.first()
+            if self.request.user.is_authenticated:
+                view_event, created = CourseViewEvent.objects.get_or_create(user=self.request.user, course=obj)
+                if view_event:
+                    view_event.views += 1
+                    view_event.save()
+            return obj
+        raise Http404
+
+
+class CoursePurchaseAPIView(APIView):
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+
+    def get(self, request, slug=None):
+        qs = Course.objects.filter(slug=slug).owned(self.request.user)
+        if qs.exists():
+            user = self.request.user
+            if user.is_authenticated:
+                my_courses = user.mycourses
+                # run transaction
+                # create user into paystack account for ysp
+                # charge user
+                # if transaction successful:
+                my_courses.courses.add(qs.first())
+                return qs.first().get_absolute_url()
+            return qs.first().get_absolute_url()
+        return "/courses/"
+
+
+class LectureDetailAPIView(APIView):
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+
+    def get(self, request, cslug=None, lslug=None, *args, **kwargs):
+        obj = None
+        qs = Course.objects.filter(slug=cslug).lectures().owned(request.user)
+        if not qs.exists():
+            raise Http404
+        course_: Course = qs.first()
+        if request.user.is_authenticated:
+            view_event, created = CourseViewEvent.objects.get_or_create(user=request.user, course=course_)
+            if view_event:
+                view_event.views += 1
+                view_event.save()
+
+        lectures_qs = course_.lecture_set.filter(slug=lslug)
+        if not lectures_qs.exists():
+            raise Http404
+
+        obj: Lecture = lectures_qs.first()
+
+        if not course_.is_owner and not obj.free:  # and not user.is_member:
+            return Response(
+                {"message": "You are not a eligible to watch this course"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        return Response(
+            {
+                "message": "success",
+                "data": {
+                    "lecture": obj.title,
+                    "lecture_order_number": obj.order,
+                    "lecture_slug": obj.slug,
+                    "is_lecture_free": obj.free,
+                    "lecture_description": obj.description,
+                    "lecture_video": obj.video.embed_code,
+                    "lecture_timestamp": obj.timestamp,
+                    "lecture_updated": obj.updated,
+                    "course": course_.title,
+                    "course_description": course_.description
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class CourseRUDAPIView(StaffEditorPermissionMixin, generics.RetrieveUpdateDestroyAPIView):
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+    authentication_classes = [SessionAuthentication, JWTAuthentication]
+    lookup_field = 'slug'
+
+    def perform_update(self, serializer):
+        serializer.partial = True
+        if not self.request.user.is_staff:
+            return Response({"detail": "Must be a staff of YSP"}, status=status.HTTP_401_UNAUTHORIZED)
+        serializer.save()
+
+    def get_object(self, *args, **kwargs):
+        slug = self.kwargs.get("slug")
+        obj = Course.objects.filter(slug=slug)
+        if obj.exists():
+            return obj.first()
+        raise Http404

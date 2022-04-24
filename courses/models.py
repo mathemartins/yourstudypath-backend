@@ -55,7 +55,7 @@ class CourseQuerySet(models.query.QuerySet):
         return self.filter(Q(category__slug__iexact='featured'))  # | Q(secondary__slug__iexact='featured'))
 
     def owned(self, user):
-        if user.is_authenticated():
+        if user.is_authenticated:
             qs = MyCourses.objects.filter(user=user)
         else:
             qs = MyCourses.objects.none()
